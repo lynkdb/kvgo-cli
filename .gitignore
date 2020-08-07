@@ -1,0 +1,6 @@
+batch-*
+bin/
+.build_tempdir/
+*.txz
+*.rpm
+
