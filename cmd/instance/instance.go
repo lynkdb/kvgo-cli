@@ -39,11 +39,11 @@ func InstanceList() (string, error) {
 
 	for _, v := range config.Config.Instances {
 		sk := "********"
-		if v.AuthKey == nil {
+		if v.AccessKey == nil {
 			continue
 		}
-		if len(v.AuthKey.SecretKey) > 32 {
-			sk = v.AuthKey.SecretKey[:16] + " ..."
+		if len(v.AccessKey.Secret) > 32 {
+			sk = v.AccessKey.Secret[:16] + " ..."
 		}
 		table.AddRow(v.Name, v.Addr, sk)
 	}

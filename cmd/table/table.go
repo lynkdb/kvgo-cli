@@ -41,14 +41,10 @@ func TableSet(l *readline.Instance) (string, error) {
 		return "", err
 	}
 
-	req := &kv2.SysCmdRequest{
-		Cmd: &kv2.SysCmdRequest_TableSet{
-			TableSet: &kv2.TableSetRequest{
-				Name: tableName,
-				Desc: tableDesc,
-			},
-		},
-	}
+	req := kv2.NewSysCmdRequest("TableSet", &kv2.TableSetRequest{
+		Name: tableName,
+		Desc: tableDesc,
+	})
 
 	rs := data.Data.Connector().SysCmd(req)
 	if !rs.OK() {
@@ -60,15 +56,11 @@ func TableSet(l *readline.Instance) (string, error) {
 
 func TableList() (string, error) {
 
-	req := &kv2.SysCmdRequest{
-		Cmd: &kv2.SysCmdRequest_TableList{
-			TableList: &kv2.TableListRequest{},
-		},
-	}
+	req := kv2.NewSysCmdRequest("TableList", &kv2.TableListRequest{})
 
 	rs := data.Data.Connector().SysCmd(req)
 	if !rs.OK() {
-		return "", fmt.Errorf("db error %s", rs.Message)
+		return "", fmt.Errorf("error %s", rs.Message)
 	}
 
 	table := uitable.New()

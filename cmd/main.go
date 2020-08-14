@@ -24,6 +24,7 @@ import (
 	"github.com/chzyer/readline"
 	"github.com/gosuri/uitable"
 
+	"github.com/lynkdb/kvgo-cli/cmd/accesskey"
 	"github.com/lynkdb/kvgo-cli/cmd/instance"
 	"github.com/lynkdb/kvgo-cli/cmd/table"
 	"github.com/lynkdb/kvgo-cli/config"
@@ -110,6 +111,15 @@ func main() {
 		case lineStr == "table set":
 			out, err = table.TableSet(l)
 
+		case lineStr == "access key list":
+			out, err = accesskey.AccessKeyList()
+
+		case lineStr == "access key get":
+			out, err = accesskey.AccessKeyGet(l)
+
+		case lineStr == "access key set":
+			out, err = accesskey.AccessKeySet(l)
+
 		case lineStr == "help", lineStr == "h":
 			out, err = cmdHelp()
 
@@ -134,6 +144,9 @@ func cmdHelp() (string, error) {
   instance use <name>
   table list
   table set
+  access key list
+  access key get
+  access key set
   help
   quit
 `, nil
