@@ -17,6 +17,7 @@ package table
 import (
 	"errors"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -64,13 +65,17 @@ func TableList() (string, error) {
 	}
 
 	table := uitable.New()
-	table.MaxColWidth = 30
+	table.MaxColWidth = 40
 	table.Wrap = true
 	table.RightAlign(2)
 	table.RightAlign(3)
 
 	table.AddRow("ID", "Name", "Keys", "Size", "Log", "Incr", "Async",
 		"Desc", "Created")
+
+	sort.Slice(rs.Items, func(i, j int) bool {
+		return rs.Items[i].Meta.IncrId < rs.Items[j].Meta.IncrId
+	})
 
 	for _, v := range rs.Items {
 

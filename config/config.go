@@ -33,6 +33,9 @@ var (
 )
 
 type ConfigCommon struct {
+	Client struct {
+		LastActiveInstance string `toml:"last_active_instance" json:"last_active_instance"`
+	} `toml:"client" json:"client"`
 	Instances []*ConfigInstance `toml:"instances" json:"instances"`
 }
 
@@ -55,10 +58,13 @@ func Setup() error {
 	}
 
 	optErr := htoml.DecodeFromFile(&Config, ConfigFile)
-
 	if optErr != nil {
 		return optErr
 	}
 
 	return nil
+}
+
+func Flush() error {
+	return htoml.EncodeToFile(Config, ConfigFile, nil)
 }

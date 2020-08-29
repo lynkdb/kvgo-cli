@@ -27,46 +27,8 @@ import (
 )
 
 func AccessKeyList() (string, error) {
-
 	req := kv2.NewSysCmdRequest("AccessKeyList", nil)
-
-	rs := data.Data.Connector().SysCmd(req)
-	if !rs.OK() {
-		return "", fmt.Errorf("error %s", rs.Message)
-	}
-
-	table := uitable.New()
-	table.MaxColWidth = 32
-	table.Wrap = true
-
-	table.AddRow("Access Key ID", "Secret", "Roles", "Scope")
-
-	for _, v := range rs.Items {
-
-		var item hauth.AccessKey
-		if err := v.DataValue().Decode(&item, nil); err != nil {
-			continue
-		}
-
-		var (
-			scopes = ""
-		)
-		for _, v2 := range item.Scopes {
-			if scopes != "" {
-				scopes += "\n"
-			}
-			scopes += fmt.Sprintf("%s = %s", v2.Name, v2.Value)
-		}
-
-		table.AddRow(
-			item.Id,
-			item.Secret,
-			strings.Join(item.Roles, ","),
-			scopes,
-		)
-	}
-
-	return table.String(), nil
+	return accessKeyList(data.Data.Connector().SysCmd(req))
 }
 
 func AccessKeyGet(l *readline.Instance) (string, error) {
@@ -80,7 +42,11 @@ func AccessKeyGet(l *readline.Instance) (string, error) {
 	req := kv2.NewSysCmdRequest("AccessKeyList", nil)
 	req.Body = []byte(accessKeyId)
 
-	rs := data.Data.Connector().SysCmd(req)
+	return accessKeyList(data.Data.Connector().SysCmd(req))
+}
+
+func accessKeyList(rs *kv2.ObjectResult) (string, error) {
+
 	if !rs.OK() {
 		return "", fmt.Errorf("error %s", rs.Message)
 	}

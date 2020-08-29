@@ -15,7 +15,7 @@
 package data
 
 import (
-	"errors"
+	"fmt"
 
 	"github.com/hooto/hflag4g/hflag"
 
@@ -32,14 +32,19 @@ var (
 func Setup(instanceName string) error {
 
 	if instanceName == "" {
-		instanceName = hflag.Value("instance").String()
-	}
 
-	if instanceName == "" {
-		if len(config.Config.Instances) < 1 {
-			return errors.New("no instance config found in " + config.ConfigFile)
+		instanceName = hflag.Value("instance").String()
+
+		if instanceName == "" {
+
+			if config.Config.Client.LastActiveInstance != "" {
+				instanceName = config.Config.Client.LastActiveInstance
+			} else if len(config.Config.Instances) < 1 {
+				return fmt.Errorf("no instance config found in %s", config.ConfigFile)
+			} else {
+				instanceName = config.Config.Instances[0].Name
+			}
 		}
-		instanceName = config.Config.Instances[0].Name
 	}
 
 	var cfg *config.ConfigInstance
@@ -51,10 +56,10 @@ func Setup(instanceName string) error {
 	}
 
 	if cfg == nil {
-		return errors.New("no instance found")
+		return fmt.Errorf("no instance (%s) found, try to use 'instance new' to create new connection to kvgo-server", instanceName)
 	}
 
-	if instanceName != "" {
+	if Data == nil || instanceName != DataInstance {
 		db, err := cfg.ClientConfig.NewClient()
 		if err != nil {
 			return err
@@ -66,6 +71,11 @@ func Setup(instanceName string) error {
 
 		Data = db
 		DataInstance = instanceName
+
+		if instanceName != config.Config.Client.LastActiveInstance {
+			config.Config.Client.LastActiveInstance = instanceName
+			config.Flush()
+		}
 	}
 
 	return nil

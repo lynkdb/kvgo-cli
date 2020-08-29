@@ -19,11 +19,60 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/chzyer/readline"
 	"github.com/gosuri/uitable"
+	"github.com/hooto/hauth/go/hauth/v1"
 	"github.com/lessos/lessgo/crypto/idhash"
+	"github.com/lynkdb/kvgo"
 	"github.com/lynkdb/kvgo-cli/config"
 	"github.com/lynkdb/kvgo-cli/data"
 )
+
+func InstanceNew(l *readline.Instance) (string, error) {
+
+	l.SetPrompt("alias name (ex: prod, demo, ...): ")
+	name, err := l.Readline()
+	if err != nil {
+		return "", err
+	}
+
+	l.SetPrompt("address (ex. 127.0.0.1:9200): ")
+	addr, err := l.Readline()
+	if err != nil {
+		return "", err
+	}
+
+	l.SetPrompt("access key id: ")
+	akId, err := l.Readline()
+	if err != nil {
+		return "", err
+	}
+
+	l.SetPrompt("access key secret: ")
+	akSecret, err := l.Readline()
+	if err != nil {
+		return "", err
+	}
+
+	for _, v := range config.Config.Instances {
+		if v.Name == name {
+			return "", fmt.Errorf("instance name (%s) already exists", name)
+		}
+	}
+
+	config.Config.Instances = append(config.Config.Instances, &config.ConfigInstance{
+		Name: name,
+		ClientConfig: &kvgo.ClientConfig{
+			Addr: addr,
+			AccessKey: &hauth.AccessKey{
+				Id:     akId,
+				Secret: akSecret,
+			},
+		},
+	})
+
+	return "", config.Flush()
+}
 
 func InstanceList() (string, error) {
 
@@ -32,20 +81,31 @@ func InstanceList() (string, error) {
 	}
 
 	table := uitable.New()
-	table.MaxColWidth = 30
+	table.MaxColWidth = 40
 	table.Wrap = true
 
-	table.AddRow("Name", "Address", "Auth SecretKey")
+	table.AddRow("Name", "Address", "AccessKey ID", "Access Key Secret")
 
 	for _, v := range config.Config.Instances {
-		sk := "********"
 		if v.AccessKey == nil {
 			continue
 		}
-		if len(v.AccessKey.Secret) > 32 {
-			sk = v.AccessKey.Secret[:16] + " ..."
+		var (
+			akid  = ""
+			aksec = ""
+		)
+
+		if len(v.AccessKey.Id) > 16 {
+			akid = v.AccessKey.Id[:16] + "****"
+		} else {
+			akid = v.AccessKey.Id
 		}
-		table.AddRow(v.Name, v.Addr, sk)
+		if n := len(v.AccessKey.Secret); n > 8 {
+			aksec = v.AccessKey.Secret[:4] + "****" + v.AccessKey.Secret[n-4:]
+		} else {
+			aksec = "********"
+		}
+		table.AddRow(v.Name, v.Addr, akid, aksec)
 	}
 
 	return table.String(), nil

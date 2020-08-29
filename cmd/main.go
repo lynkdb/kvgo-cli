@@ -55,7 +55,7 @@ func main() {
 	}
 
 	if err := data.Setup(""); err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
 
 	l, err := readline.NewEx(&readline.Config{
@@ -102,6 +102,9 @@ func main() {
 		case strings.HasPrefix(lineStr, "instance use") && len(lineArr) == 3:
 			out, err = instance.InstanceUse(lineArr[2])
 
+		case lineStr == "instance new":
+			out, err = instance.InstanceNew(l)
+
 		case lineStr == "instance write-test-100":
 			out, err = instance.InstanceWriteTest(100)
 
@@ -142,6 +145,7 @@ func cmdHelp() (string, error) {
 	return `kvgo-cli usage:
   instance list
   instance use <name>
+  instance new
   table list
   table set
   access key list
