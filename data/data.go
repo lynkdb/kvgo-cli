@@ -40,7 +40,8 @@ func Setup(instanceName string) error {
 			if config.Config.Client.LastActiveInstance != "" {
 				instanceName = config.Config.Client.LastActiveInstance
 			} else if len(config.Config.Instances) < 1 {
-				return fmt.Errorf("no instance config found in %s", config.ConfigFile)
+				return fmt.Errorf("no instance setup in %s, try to use 'instance new' to create new connection to kvgo-server",
+					config.ConfigFile)
 			} else {
 				instanceName = config.Config.Instances[0].Name
 			}
@@ -56,7 +57,8 @@ func Setup(instanceName string) error {
 	}
 
 	if cfg == nil {
-		return fmt.Errorf("no instance (%s) found, try to use 'instance new' to create new connection to kvgo-server", instanceName)
+		return fmt.Errorf("no instance (%s) found, try to use 'instance new' to create new connection to kvgo-server",
+			instanceName)
 	}
 
 	if Data == nil || instanceName != DataInstance {

@@ -17,6 +17,8 @@ package instance
 import (
 	"errors"
 	"fmt"
+	"net"
+	"regexp"
 	"time"
 
 	"github.com/chzyer/readline"
@@ -28,28 +30,92 @@ import (
 	"github.com/lynkdb/kvgo-cli/data"
 )
 
+var (
+	InstanceNameRE = regexp.MustCompile("^[a-z]{1}[a-z0-9_]{0,31}$")
+)
+
 func InstanceNew(l *readline.Instance) (string, error) {
 
-	l.SetPrompt("alias name (ex: prod, demo, ...): ")
-	name, err := l.Readline()
+	validator := func(name, desc string, re *regexp.Regexp, fn func(v string) error) (string, error) {
+
+		var (
+			err   error
+			value string
+			tip   = fmt.Sprintf("input %s", name)
+		)
+
+		if desc != "" {
+			tip += " (" + desc + ")"
+		}
+
+		tip += " : "
+
+		for {
+
+			l.SetPrompt(tip)
+			value, err = l.Readline()
+
+			if err != nil {
+				fmt.Println(err)
+				break
+			}
+
+			if re != nil && !re.MatchString(value) {
+				fmt.Printf(" invalid %s, try again ...\n", name)
+				continue
+			}
+
+			if fn != nil {
+				if e := fn(value); e != nil {
+					fmt.Printf("  invalid %s (%s), try again ...\n", name, e)
+					continue
+				}
+			}
+
+			break
+		}
+
+		return value, err
+	}
+
+	//
+	name, err := validator("alias name of instance", "ex: prod, demo, ...",
+		InstanceNameRE, nil)
 	if err != nil {
 		return "", err
 	}
 
-	l.SetPrompt("address (ex. 127.0.0.1:9200): ")
-	addr, err := l.Readline()
+	//
+	addr, err := validator("instace address", "ex. 127.0.0.1:9200",
+		nil, func(v string) error {
+			taddr, err := net.ResolveTCPAddr("tcp", v)
+			if err != nil {
+				return err
+			}
+			if taddr.IP == nil {
+				return errors.New("invalid ip address")
+			}
+			if taddr.Port < 1 || taddr.Port > 65503 {
+				return errors.New("invalid network port")
+			}
+			return nil
+		})
 	if err != nil {
 		return "", err
 	}
 
-	l.SetPrompt("access key id: ")
-	akId, err := l.Readline()
+	//
+
+	akId, err := validator("access key id", "",
+		hauth.AccessKeyIdReg, nil)
 	if err != nil {
 		return "", err
 	}
 
-	l.SetPrompt("access key secret: ")
-	akSecret, err := l.Readline()
+	//
+
+	akSecret, err := validator("access key secret: ", "",
+		hauth.AccessKeySecretRE, nil)
 	if err != nil {
 		return "", err
 	}
@@ -71,7 +137,12 @@ func InstanceNew(l *readline.Instance) (string, error) {
 		},
 	})
 
-	return "", config.Flush()
+	err = config.Flush()
+	if err == nil {
+		return InstanceUse(name)
+	}
+
+	return "", err
 }
 
 func InstanceList() (string, error) {

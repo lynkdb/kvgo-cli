@@ -57,9 +57,8 @@ func Setup() error {
 		return err
 	}
 
-	optErr := htoml.DecodeFromFile(&Config, ConfigFile)
-	if optErr != nil {
-		return optErr
+	if err = htoml.DecodeFromFile(&Config, ConfigFile); err != nil && !os.IsNotExist(err) {
+		return err
 	}
 
 	return nil
