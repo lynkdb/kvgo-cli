@@ -123,7 +123,7 @@ kvgo.instanceNavbarSetup = function () {
 };
 
 kvgo.InstanceInvoke = function (name) {
-    return kvgo.InstanceMetrics(); // DEBUG
+    // return kvgo.InstanceMetrics(); // DEBUG
     switch (name) {
         case "metrics":
             kvgo.InstanceMetrics();

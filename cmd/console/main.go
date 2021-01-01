@@ -15,6 +15,7 @@
 package console
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -25,11 +26,6 @@ import (
 
 	"github.com/lynkdb/kvgo-cli/config"
 	"github.com/lynkdb/kvgo-cli/websrv/console"
-)
-
-var (
-	version = "git"
-	release = "1"
 )
 
 func Start() {
@@ -45,6 +41,12 @@ func Start() {
 			hlog.Printf("info", "kvgo-cli start err %s", err.Error())
 		}
 	}()
+
+	fmt.Printf("Setup Instances: %d\n",
+		len(config.Config.Instances))
+
+	fmt.Printf("Console URL: http://localhost:%d\n",
+		config.Config.HttpPort)
 
 	quit := make(chan os.Signal, 2)
 

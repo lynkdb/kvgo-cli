@@ -58,6 +58,10 @@ func Setup() error {
 		return err
 	}
 
+	if Prefix, err = filepath.Abs(filepath.Dir(os.Args[0]) + "/.."); err != nil {
+		Prefix = "/opt/lynkdb/" + AppName
+	}
+
 	if Config.HttpPort == 0 {
 		Config.HttpPort = 9201
 	}
