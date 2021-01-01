@@ -60,6 +60,24 @@ kvgo-cli usage:
   quit
 ```
 
+## Use WebUI Console
+
+``` shell
+[guest@VM-0-17-centos ~]$ kvgo-cli --console
+Setup Instances: 10
+Console URL: http://localhost:9201
+```
+
+Instance Overview
+
+![overview](misc/assets/console-01.cmp.png)
+
+
+Instance Metrics
+
+![metrics](misc/assets/console-02.cmp.png)
+
+
 ## Dependent or referenced
 
 * kvgo [https://github.com/lynkdb/kvgo](https://github.com/lynkdb/kvgo)
