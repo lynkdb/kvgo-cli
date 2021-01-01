@@ -27,6 +27,7 @@ var (
 	Data         kv2.Client
 	DataInstance = ""
 	err          error
+	dbSets       = map[string]kv2.Client{}
 )
 
 func Setup(instanceName string) error {
@@ -81,4 +82,58 @@ func Setup(instanceName string) error {
 	}
 
 	return nil
+}
+
+func Connector(instanceName string) (kv2.ClientConnector, error) {
+
+	if instanceName == "" {
+
+		instanceName = hflag.Value("instance").String()
+
+		if instanceName == "" {
+
+			if config.Config.Client.LastActiveInstance != "" {
+				instanceName = config.Config.Client.LastActiveInstance
+			} else if len(config.Config.Instances) < 1 {
+				return nil, fmt.Errorf("no instance setup in %s, try to use 'instance new' to create new connection to kvgo-server",
+					config.ConfigFile)
+			} else {
+				instanceName = config.Config.Instances[0].Name
+			}
+		}
+	}
+
+	var cfg *config.ConfigInstance
+	for _, v := range config.Config.Instances {
+		if v.Name == instanceName {
+			cfg = v
+			break
+		}
+	}
+
+	if cfg == nil {
+		return nil, fmt.Errorf("no instance (%s) found, try to use 'instance new' to create new connection to kvgo-server",
+			instanceName)
+	}
+
+	db := dbSets[instanceName]
+
+	if db == nil || instanceName != DataInstance {
+
+		db, err = cfg.ClientConfig.NewClient()
+		if err != nil {
+			return nil, err
+		}
+
+		dbSets[instanceName] = db
+
+		DataInstance = instanceName
+
+		if instanceName != config.Config.Client.LastActiveInstance {
+			config.Config.Client.LastActiveInstance = instanceName
+			config.Flush()
+		}
+	}
+
+	return db.Connector(), nil
 }

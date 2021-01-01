@@ -3,4 +3,5 @@ bin/
 .build_tempdir/
 *.txz
 *.rpm
+cmd/main.go
 

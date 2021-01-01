@@ -1,0 +1,6 @@
+[submodule "webui/hchart"]
+	path = webui/hchart
+	url = https://github.com/hooto/hchart.git
+[submodule "webui/valueui"]
+	path = webui/valueui
+	url = https://github.com/valuedig/valueui.git

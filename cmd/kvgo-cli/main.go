@@ -23,8 +23,10 @@ import (
 
 	"github.com/chzyer/readline"
 	"github.com/gosuri/uitable"
+	"github.com/hooto/hflag4g/hflag"
 
 	"github.com/lynkdb/kvgo-cli/cmd/accesskey"
+	"github.com/lynkdb/kvgo-cli/cmd/console"
 	"github.com/lynkdb/kvgo-cli/cmd/instance"
 	"github.com/lynkdb/kvgo-cli/cmd/table"
 	"github.com/lynkdb/kvgo-cli/config"
@@ -52,6 +54,11 @@ func main() {
 
 	if err := config.Setup(); err != nil {
 		log.Fatal(err)
+	}
+
+	if _, ok := hflag.ValueOK("console"); ok {
+		console.Start()
+		return
 	}
 
 	if err := data.Setup(""); err != nil {

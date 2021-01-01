@@ -1,0 +1,14 @@
+.instance-entry-block {
+    padding: 10px !important;
+    min-height: 200px;
+    min-width: 400px;
+}
+.instance-entry-block-table {
+    display: table;
+    width: 100%;
+}
+.instance-entry-block-table > div {
+    display: table-cell;
+    height: 4rem;
+    vertical-align: middle;
+}

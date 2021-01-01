@@ -1,0 +1,143 @@
+<div class="container-fluid">
+    <div class="row valueui-mb-0" id="kvgo-instance-overview-node-all"></div>
+</div>
+
+<div class="container-fluid">
+    <div class="valueui-block" id="kvgo-instance-overview-node-list"></div>
+    <div class="valueui-block" id="kvgo-instance-overview-table-list"></div>
+</div>
+
+<script type="text/html" id="kvgo-instance-overview-node-all-tpl">
+
+<div class="col col-6 instance-entry-block">
+    <div class="card">
+        <div class="card-header">Capacity Usage</div>
+        <div class="card-body">
+            <div class="instance-entry-block-table">
+                <div class="fs-3 fw-bolder" style="width: 5rem">
+                    {[=it.node_all.disk_percent]}%
+                </div>
+                <div>
+                    <div class="position-relative">
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar"
+                                style="width: {[=it.node_all.disk_percent]}%"
+                                aria-valuenow="{[=it.node_all.disk_percent]}" aria-valuemin="0"
+                                aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="instance-entry-block-table">
+                <div class="text-black-50">USED<br />CAPACITY</div>
+                <div class="fw-bolder">
+                    {[=valueui.utilx.ByteSizeFormat(it.node_all.disk_use)]}
+                </div>
+                <div class="text-black-50">USABLE<br />CAPACITY</div>
+                <div class="fw-bolder">
+                    {[=valueui.utilx.ByteSizeFormat(it.node_all.disk_max)]}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col col-6 instance-entry-block">
+    <div class="card">
+        <div class="card-header">Node Status</div>
+        <div class="card-body">
+            <div class="instance-entry-block-table">
+                <div class="fw-bolder fs-4">
+                    {[=it.node_all.status_live]}
+                </div>
+                <div class="fw-bolder fs-4">
+                    {[=it.node_all.status_suspect]}
+                </div>
+                <div class="fw-bolder fs-4">
+                    {[=it.node_all.status_dead]}
+                </div>
+            </div>
+            <div class="instance-entry-block-table">
+                <div class="text-black-50">LIVE<br />NODES</div>
+                <div class="text-black-50">SUSPECT<br />NODES</div>
+                <div class="text-black-50">DEAD<br />NODES</div>
+            </div>
+        </div>
+    </div>
+</div>
+</script>
+
+<script type="text/html" id="kvgo-instance-overview-node-list-tpl">
+<div class="card">
+    <div class="card-header">Node List</div>
+    <div class="card-body">
+        <table class="table valueui-block">
+            <thead>
+                <tr>
+                    <th>NODE</th>
+                    <th>CAPACITY USE</th>
+                    <th>MEMORY USE</th>
+                    <th>CPUS</th>
+                    <th>VERSION</th>
+                    <th>STATUS</th>
+                    <th>UPTIME</th>
+                </tr>
+            </thead>
+            <tbody id="">
+                {[~it.nodes :v]}
+                <tr>
+                    <td>{[=v.addr]}</td>
+                    <td>
+                        {[? v.caps && v.caps.disk]}
+                        {[=valueui.utilx.ValuePercent(v.caps.disk.use,
+                        v.caps.disk.max)]}% {[?]}
+                    </td>
+                    <td>
+                        {[? v.caps && v.caps.disk]}
+                        {[=valueui.utilx.ValuePercent(v.caps.mem.use,
+                        v.caps.mem.max)]}% {[?]}
+                    </td>
+                    <td>
+                        {[? v.caps &&
+                        v.caps.cpu]}{[=v.caps.cpu.use]}{[?]}
+                    </td>
+                    <td>{[=v.version]}</td>
+                    <td>{[=kvgo.NodeStatus(v.action, {html_tag:true})]}</td>
+                    <td>{[=valueui.utilx.UnixTimeUptime(v.uptime)]}</td>
+                </tr>
+                {[~]}
+
+            </tbody>
+        </table>
+    </div>
+</div>
+</script>
+
+<script type="text/html" id="kvgo-instance-overview-table-list-tpl">
+<div class="card">
+    <div class="card-header">Table List</div>
+    <div class="card-body">
+        <table class="table valueui-block">
+            <thead>
+                <tr>
+                    <th>NAME</th>
+                    <th>KEYS</th>
+                    <th>LOG ID</th>
+                    <th>DB SIZE</th>
+                    <th style="max-width:50%">OPTIONS</th>
+                </tr>
+            </thead>
+            <tbody id="">
+                {[~it.tables :v]}
+                <tr>
+                    <td>{[=v.name]}</td>
+                    <td>{[=v.key_num]}</td>
+                    <td>{[=v._log_id]}</td>
+                    <td>{[=valueui.utilx.ByteSizeFormat(v.db_size)]}</td>
+                    <td>{[=v._options.join(",")]}</td>
+                </tr>
+                {[~]}
+            </tbody>
+        </table>
+    </div>
+</div>
+</script>

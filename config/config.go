@@ -33,7 +33,8 @@ var (
 )
 
 type ConfigCommon struct {
-	Client struct {
+	HttpPort int `toml:"http_port,omitempty"`
+	Client   struct {
 		LastActiveInstance string `toml:"last_active_instance" json:"last_active_instance"`
 	} `toml:"client" json:"client"`
 	Instances []*ConfigInstance `toml:"instances" json:"instances"`
@@ -55,6 +56,10 @@ func Setup() error {
 
 	if ConfigFile, err = filepath.Abs(ConfigFile); err != nil {
 		return err
+	}
+
+	if Config.HttpPort == 0 {
+		Config.HttpPort = 9201
 	}
 
 	if err = htoml.DecodeFromFile(&Config, ConfigFile); err != nil && !os.IsNotExist(err) {
