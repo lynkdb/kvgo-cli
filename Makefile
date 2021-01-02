@@ -17,7 +17,7 @@ APP_PATH = /usr/local/bin/kvgo-cli
 BINDATA_CMD = httpsrv-bindata
 BINDATA_ARGS_WEBUI = -src webui/ -dst bindata/webui/ -inc htm,js,css,svg
 
-all: bin_build bindata_build
+all: bindata_build bin_build
 	@echo ""
 	@echo "build complete"
 	@echo ""

@@ -539,7 +539,7 @@ kvgo.NodeStatus = function (action, opts) {
             var title = kvgo._node_statuses[i].title;
             if (opts.html_tag) {
                 title = valueui.utilx.Sprintf(
-                    `<span class="badge bg-%s">%s</span>`,
+                    '<span class="badge bg-%s">%s</span>',
                     kvgo._node_statuses[i].html_tag,
                     title
                 );
