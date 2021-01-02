@@ -17,6 +17,7 @@ package console
 import (
 	"github.com/hooto/httpsrv"
 
+	"github.com/lynkdb/kvgo-cli/bindata"
 	"github.com/lynkdb/kvgo-cli/config"
 )
 
@@ -28,6 +29,7 @@ func NewModule() httpsrv.Module {
 		Type:       httpsrv.RouteTypeStatic,
 		Path:       "~",
 		StaticPath: config.Prefix + "/webui",
+		BinFs:      bindata.NewFs("webui"),
 	})
 
 	module.ControllerRegister(new(Index))

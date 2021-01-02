@@ -1,7 +1,7 @@
 batch-*
 bin/
+bindata
 .build_tempdir/
 *.txz
 *.rpm
 cmd/main.go
-
