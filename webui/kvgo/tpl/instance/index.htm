@@ -70,7 +70,7 @@
 <div class="card">
     <div class="card-header">Node List</div>
     <div class="card-body">
-        <table class="table valueui-block">
+        <table class="table valueui-block kvgo-table">
             <thead>
                 <tr>
                     <th>NODE</th>
@@ -116,14 +116,14 @@
 <div class="card">
     <div class="card-header">Table List</div>
     <div class="card-body">
-        <table class="table valueui-block">
+        <table class="table valueui-block kvgo-table">
             <thead>
                 <tr>
                     <th>NAME</th>
                     <th>KEYS</th>
                     <th>LOG ID</th>
                     <th>DB SIZE</th>
-                    <th style="max-width:50%">OPTIONS</th>
+                    <th style="width:50%">OPTIONS</th>
                 </tr>
             </thead>
             <tbody id="">
@@ -133,7 +133,7 @@
                     <td>{[=v.key_num]}</td>
                     <td>{[=v._log_id]}</td>
                     <td>{[=valueui.utilx.ByteSizeFormat(v.db_size)]}</td>
-                    <td>{[=v._options.join(",")]}</td>
+                    <td>{[=v._options.join("<br/>")]}</td>
                 </tr>
                 {[~]}
             </tbody>

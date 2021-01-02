@@ -65,18 +65,28 @@ kvgo.load = function () {
             },
         };
 
+        instances.items = instances.items || [];
         kvgo.instances = instances;
 
-        instances.items = instances.items || [];
         for (var i in instances.items) {
             nav.navbar_nav.items.push({
                 title: instances.items[i].name,
                 path: instances.items[i].name,
-                onclick: "kvgo.InstanceEntry('" + instances.items[i].name + "')",
             });
+            valueui.url.EventRegister(
+                instances.items[i].name,
+                kvgo.InstanceEntry,
+                "valueui-layout-navbar-nav-items"
+            );
         }
 
-        valueui.layout.Render("std", nav, kvgo.InstanceEntry);
+        valueui.layout.Render("std", nav, function () {
+            valueui.url.EventHandler(
+                kvgo.instanceEntryDefault(),
+                false,
+                "valueui-layout-navbar-nav-items"
+            );
+        });
     });
 
     kvgo.ApiCmd("sys/instance-list", {
@@ -84,9 +94,13 @@ kvgo.load = function () {
     });
 };
 
-kvgo.InstanceEntry = function (name) {
+kvgo.instanceEntryDefault = function (name) {
     if (!name) {
-        name = valueui.sessionData.Get("kvgo-console-active");
+        if (kvgo.instanceActiveName) {
+            name = kvgo.instanceActiveName;
+        } else {
+            name = valueui.sessionData.Get("kvgo-console-active");
+        }
     }
 
     if (name && kvgo.instances && kvgo.instances.items.length > 0) {
@@ -98,28 +112,37 @@ kvgo.InstanceEntry = function (name) {
         }
     }
 
-    if (!kvgo.instanceActiveName && kvgo.instances && kvgo.instances.items.length > 0) {
-        kvgo.instanceActiveName = kvgo.instances.items[0].name;
-    }
+    return kvgo.instanceActiveName;
+};
 
-    if (!kvgo.instanceActiveName) {
+kvgo.InstanceEntry = function (name) {
+    console.log(name);
+    name = kvgo.instanceEntryDefault(name);
+
+    if (!name) {
         return valueui.alert.Open("error", "No Instance Setup");
     }
 
-    kvgo.instanceNavbarSetup();
-
-    kvgo.InstanceInvoke();
+    kvgo.instanceNavbarSetup(function () {
+        valueui.url.EventHandler("index", false, "valueui-layout-module-navbar-items");
+    });
 };
 
-kvgo.instanceNavbarSetup = function () {
+kvgo.instanceNavbarSetup = function (cb) {
     //
     valueui.layout.ModuleNavbarMenu("instance", kvgo.instanceEntryMenu);
 
     for (var i in kvgo.instanceEntryMenu) {
-        valueui.url.EventRegister(kvgo.instanceEntryMenu[i].uri, kvgo.InstanceInvoke);
+        valueui.url.EventRegister(
+            kvgo.instanceEntryMenu[i].uri,
+            kvgo.InstanceInvoke,
+            "valueui-layout-module-navbar-items"
+        );
     }
 
-    // valueui.url.EventHandler("index", true);
+    if (cb) {
+        cb();
+    }
 };
 
 kvgo.InstanceInvoke = function (name) {
