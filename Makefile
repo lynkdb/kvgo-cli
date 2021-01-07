@@ -29,6 +29,7 @@ bin_clean:
 	rm -f ${EXE_CLI}
 
 bindata_build:
+	$(QUIET_BUILD)go get -u github.com/hooto/httpsrv-bindata $(CCLINK)
 	$(QUIET_BUILD)$(BINDATA_CMD) $(BINDATA_ARGS_WEBUI) $(CCLINK)
 
 bindata_clean:

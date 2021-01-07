@@ -8,7 +8,10 @@ kvgo-cli is the command line tool to connect and manage the [kvgo-server](https:
 Ensure that the golang development environment has been installed correctly
 
 ``` shell
-go install github.com/lynkdb/kvgo-cli/cmd/kvgo-cli
+git clone --recurse-submodules https://github.com/lynkdb/kvgo-cli.git
+cd kvgo-cli
+make
+make install
 ```
 
 ## Usage
