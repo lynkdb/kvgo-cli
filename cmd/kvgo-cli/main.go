@@ -50,9 +50,13 @@ func resetPrompt(l *readline.Instance) {
 	l.SetPrompt("\033[31mkvgo-cli " + instanceName + ": \033[0m")
 }
 
+var (
+	version = ""
+)
+
 func main() {
 
-	if err := config.Setup(); err != nil {
+	if err := config.Setup(version); err != nil {
 		log.Fatal(err)
 	}
 

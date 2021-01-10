@@ -54,8 +54,9 @@ func (c Index) IndexAction() {
   <title>kvgo console</title>
   <script src="/kvgo/~/valueui/main.js"></script>
   <script type="text/javascript">
+    valueui.app_version = "` + config.AppVersion + `";
     valueui.basepath = "/kvgo/~/";
-    window.onload = valueui.Use("kvgo/main.js", function() {kvgo.Boot()});
+    window.onload = valueui.use("kvgo/main.js", function() {kvgo.Boot()});
   </script>
 </head>
 <body id="valueui-body">

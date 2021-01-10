@@ -24,6 +24,7 @@ import (
 )
 
 var (
+	AppVersion = "0.10"
 	AppName    = "kvgo-cli"
 	Homedir    = ""
 	Prefix     = ""
@@ -45,7 +46,7 @@ type ConfigInstance struct {
 	Name string `toml:"name" json:"name"`
 }
 
-func Setup() error {
+func Setup(version string) error {
 
 	Homedir, err = os.UserHomeDir()
 	if err != nil {
@@ -68,6 +69,10 @@ func Setup() error {
 
 	if err = htoml.DecodeFromFile(&Config, ConfigFile); err != nil && !os.IsNotExist(err) {
 		return err
+	}
+
+	if version != "" {
+		AppVersion = version
 	}
 
 	return nil

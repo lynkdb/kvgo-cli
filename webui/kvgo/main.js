@@ -37,11 +37,11 @@ kvgo.staticFilepath = function (filepath) {
 };
 
 kvgo.ApiCmd = function (url, options) {
-    valueui.utilx.Ajax(kvgo.api + url, options);
+    valueui.utilx.ajax(kvgo.api + url, options);
 };
 
 kvgo.TplCmd = function (url, options) {
-    valueui.utilx.Ajax(kvgo.base + "~/kvgo/tpl/" + url, options);
+    valueui.utilx.ajax(kvgo.base + "~/kvgo/tpl/" + url, options);
 };
 
 kvgo.Boot = function () {
@@ -49,12 +49,12 @@ kvgo.Boot = function () {
         return;
     }
     kvgo.booted = true;
-    valueui.Use(["kvgo/main.css"], kvgo.load);
+    valueui.use(["kvgo/main.css"], kvgo.load);
 };
 
 kvgo.load = function () {
     //
-    var ep = valueui.NewEventProxy("instances", function (instances) {
+    var ep = valueui.newEventProxy("instances", function (instances) {
         var nav = {
             navbar_brand: {
                 text: "kvgo console",
@@ -73,15 +73,15 @@ kvgo.load = function () {
                 title: instances.items[i].name,
                 path: instances.items[i].name,
             });
-            valueui.url.EventRegister(
+            valueui.url.eventRegister(
                 instances.items[i].name,
                 kvgo.InstanceEntry,
                 "valueui-layout-navbar-nav-items"
             );
         }
 
-        valueui.layout.Render("std", nav, function () {
-            valueui.url.EventHandler(
+        valueui.layout.render("std", nav, function () {
+            valueui.url.eventHandler(
                 kvgo.instanceEntryDefault(),
                 false,
                 "valueui-layout-navbar-nav-items"
@@ -99,7 +99,7 @@ kvgo.instanceEntryDefault = function (name) {
         if (kvgo.instanceActiveName) {
             name = kvgo.instanceActiveName;
         } else {
-            name = valueui.sessionData.Get("kvgo-console-active");
+            name = valueui.sessionData.get("kvgo-console-active");
         }
     }
 
@@ -120,20 +120,20 @@ kvgo.InstanceEntry = function (name) {
     name = kvgo.instanceEntryDefault(name);
 
     if (!name) {
-        return valueui.alert.Open("error", "No Instance Setup");
+        return valueui.alert.open("error", "No Instance Setup");
     }
 
     kvgo.instanceNavbarSetup(function () {
-        valueui.url.EventHandler("index", false, "valueui-layout-module-navbar-items");
+        valueui.url.eventHandler("index", false, "valueui-layout-module-navbar-items");
     });
 };
 
 kvgo.instanceNavbarSetup = function (cb) {
     //
-    valueui.layout.ModuleNavbarMenu("instance", kvgo.instanceEntryMenu);
+    valueui.layout.moduleNavbarMenu("instance", kvgo.instanceEntryMenu);
 
     for (var i in kvgo.instanceEntryMenu) {
-        valueui.url.EventRegister(
+        valueui.url.eventRegister(
             kvgo.instanceEntryMenu[i].uri,
             kvgo.InstanceInvoke,
             "valueui-layout-module-navbar-items"
@@ -174,7 +174,7 @@ kvgo.instanceNodeDataFilter = function (data) {
         status_suspect: 0,
         status_dead: 0,
     };
-    var tn = valueui.utilx.UnixTimeSecond();
+    var tn = valueui.utilx.unixTimeSecond();
     for (var i in data.nodes) {
         var live_sec = tn - data.nodes[i].updated;
         if (live_sec > 3600) {
@@ -242,37 +242,37 @@ kvgo.InstanceOverview = function () {
     //
     var name = kvgo.instanceActiveName;
 
-    var ep = valueui.NewEventProxy("data", "tpl", function (data, tpl) {
-        var msg = valueui.utilx.KindCheck(data, "SysStatus");
+    var ep = valueui.newEventProxy("data", "tpl", function (data, tpl) {
+        var msg = valueui.utilx.kindCheck(data, "SysStatus");
         if (msg) {
-            return valueui.alert.Open("error", msg);
+            return valueui.alert.open("error", msg);
         }
 
-        valueui.sessionData.Set("kvgo-console-active", name);
+        valueui.sessionData.set("kvgo-console-active", name);
 
         data = kvgo.instanceNodeDataFilter(data.item);
 
-        valueui.template.Render({
+        valueui.template.render({
             dstid: "valueui-layout-main",
             tplsrc: tpl,
             callback: function () {
-                valueui.template.Render({
+                valueui.template.render({
                     dstid: "kvgo-instance-overview-node-list",
                     tplid: "kvgo-instance-overview-node-list-tpl",
                     data: data,
                 });
-                valueui.template.Render({
+                valueui.template.render({
                     dstid: "kvgo-instance-overview-node-all",
                     tplid: "kvgo-instance-overview-node-all-tpl",
                     data: data,
                 });
-                valueui.template.Render({
+                valueui.template.render({
                     dstid: "kvgo-instance-overview-table-list",
                     tplid: "kvgo-instance-overview-table-list-tpl",
                     data: data,
                 });
 
-                valueui.job.Register({
+                valueui.job.register({
                     id: "kvgo-instance-overview-node-list",
                     delay: 10000,
                     func: kvgo.instanceOverviewRefresh,
@@ -282,7 +282,7 @@ kvgo.InstanceOverview = function () {
     });
 
     ep.fail(function (err) {
-        valueui.alert.Open("error", "network error " + err);
+        valueui.alert.open("error", "network error " + err);
     });
 
     kvgo.TplCmd("instance/index.htm", {
@@ -308,14 +308,14 @@ kvgo.instanceOverviewRefresh = function (ctx) {
             if (err) {
                 return;
             }
-            var msg = valueui.utilx.KindCheck(data, "SysStatus");
+            var msg = valueui.utilx.kindCheck(data, "SysStatus");
             if (msg) {
                 return;
             }
 
             data = kvgo.instanceNodeDataFilter(data.item);
 
-            valueui.template.Render({
+            valueui.template.render({
                 dstid: dstid + "-node-all",
                 tplid: dstid + "-node-all-tpl",
                 data: {
@@ -324,7 +324,7 @@ kvgo.instanceOverviewRefresh = function (ctx) {
                 data_hash_skip: true,
             });
 
-            valueui.template.Render({
+            valueui.template.render({
                 dstid: dstid + "-node-list",
                 tplid: dstid + "-node-list-tpl",
                 data: {
@@ -333,7 +333,7 @@ kvgo.instanceOverviewRefresh = function (ctx) {
                 data_hash_skip: true,
             });
 
-            valueui.template.Render({
+            valueui.template.render({
                 dstid: dstid + "-table-list",
                 tplid: dstid + "-table-list-tpl",
                 data: {
@@ -349,7 +349,7 @@ kvgo.hchartUse = function (cb) {
     if (kvgo.hchartUsed) {
         return cb();
     }
-    valueui.Use(["hchart/webui/hchart.js"], function (err) {
+    valueui.use(["hchart/webui/hchart.js"], function (err) {
         if (err) {
             return cb(err);
         }
@@ -401,7 +401,7 @@ kvgo.instanceMetricsDataRender = function (data, update) {
     };
 
     for (var j in data.item.keys) {
-        var label = valueui.utilx.UnixTimeFormat(data.item.keys[j], "i:s");
+        var label = valueui.utilx.unixTimeFormat(data.item.keys[j], "i:s");
         mrs.sq.data.labels.push(label);
         mrs.sb.data.labels.push(label);
         mrs.aq.data.labels.push(label);
@@ -466,24 +466,24 @@ kvgo.InstanceMetrics = function () {
 
     var req = "instance_name=" + name + "&time_recent=600&time_unit=10";
 
-    var ep = valueui.NewEventProxy("data", "tpl", "cerr", function (data, tpl, cerr) {
+    var ep = valueui.newEventProxy("data", "tpl", "cerr", function (data, tpl, cerr) {
         if (cerr) {
-            return valueui.alert.Open("error", cerr);
+            return valueui.alert.open("error", cerr);
         }
-        var msg = valueui.utilx.KindCheck(data, "SysMetrics");
+        var msg = valueui.utilx.kindCheck(data, "SysMetrics");
         if (msg) {
-            return valueui.alert.Open("error", msg);
+            return valueui.alert.open("error", msg);
         }
 
-        valueui.sessionData.Set("kvgo-console-active", name);
+        valueui.sessionData.set("kvgo-console-active", name);
 
-        valueui.template.Render({
+        valueui.template.render({
             dstid: "valueui-layout-main",
             tplsrc: tpl,
             callback: function () {
                 kvgo.instanceMetricsDataRender(data);
 
-                valueui.job.Register({
+                valueui.job.register({
                     id: "kvgo-instance-metrics-stor-queries",
                     delay: 3000,
                     func: kvgo.instanceMetricsRefresh,
@@ -493,7 +493,7 @@ kvgo.InstanceMetrics = function () {
     });
 
     ep.fail(function (err) {
-        valueui.alert.Open("error", "network error " + err);
+        valueui.alert.open("error", "network error " + err);
     });
 
     kvgo.hchartUse(ep.done("cerr"));
@@ -522,7 +522,7 @@ kvgo.instanceMetricsRefresh = function (ctx) {
             if (err) {
                 return;
             }
-            var msg = valueui.utilx.KindCheck(data, "SysMetrics");
+            var msg = valueui.utilx.kindCheck(data, "SysMetrics");
             if (msg) {
                 return;
             }
@@ -538,7 +538,7 @@ kvgo.NodeStatus = function (action, opts) {
         if (kvgo._node_statuses[i].action == action) {
             var title = kvgo._node_statuses[i].title;
             if (opts.html_tag) {
-                title = valueui.utilx.Sprintf(
+                title = valueui.utilx.sprintf(
                     '<span class="badge bg-%s">%s</span>',
                     kvgo._node_statuses[i].html_tag,
                     title

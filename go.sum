@@ -61,6 +61,8 @@ github.com/hooto/htoml4g v0.0.0-20200928123528-226e1ac698c9 h1:GTp8ED9hNbK13sxJS
 github.com/hooto/htoml4g v0.0.0-20200928123528-226e1ac698c9/go.mod h1:b9ALANnh1cKjSq74i4Lu+qdc9FC40f2+ISBRNl3oQxU=
 github.com/hooto/httpsrv v0.0.0-20201207100146-6fa4cdcbc9c9 h1:k7u1kjzxC31clnaIbAsSuqXuGt6kxRdGJcAB7a2CDYU=
 github.com/hooto/httpsrv v0.0.0-20201207100146-6fa4cdcbc9c9/go.mod h1:9qX867Yq72anjTNO1NecxmbZ9S9ILypE98T8pg/YWAA=
+github.com/hooto/httpsrv-bindata v0.0.0-20210108061211-668e87bb46ad h1:vAu9c7Ign7YdHLQ0mv9mPsaaovvR+AFgeprXH+VsW5k=
+github.com/hooto/httpsrv-bindata v0.0.0-20210108061211-668e87bb46ad/go.mod h1:lFA665uq1lbrWsA9af6EvK+Eh0F8VxhXADBK/cST8TI=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
 github.com/jung-kurt/gofpdf v1.0.0/go.mod h1:7Id9E/uU8ce6rXgefFLlgrJj/GYY22cpxn+r32jIOes=
 github.com/jung-kurt/gofpdf v1.0.3-0.20190309125859-24315acbbda5/go.mod h1:7Id9E/uU8ce6rXgefFLlgrJj/GYY22cpxn+r32jIOes=

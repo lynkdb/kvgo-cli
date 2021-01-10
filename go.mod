@@ -16,6 +16,7 @@ require (
 	github.com/hooto/hlog4g v0.0.0-20181231103046-38344b690809
 	github.com/hooto/htoml4g v0.0.0-20200928123528-226e1ac698c9
 	github.com/hooto/httpsrv v0.0.0-20201207100146-6fa4cdcbc9c9
+	github.com/hooto/httpsrv-bindata v0.0.0-20210108061211-668e87bb46ad // indirect
 	github.com/lessos/lessgo v0.0.0-20201010103753-2e2039a4eb3c
 	github.com/lynkdb/kvgo v0.0.0-20210101080203-ccf10e18fda4
 	github.com/lynkdb/kvspec v0.0.0-20210101075840-9ac10b1a0521

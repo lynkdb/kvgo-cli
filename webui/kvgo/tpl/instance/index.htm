@@ -31,11 +31,11 @@
             <div class="instance-entry-block-table">
                 <div class="text-black-50">USED<br />CAPACITY</div>
                 <div class="fw-bolder">
-                    {[=valueui.utilx.ByteSizeFormat(it.node_all.disk_use)]}
+                    {[=valueui.utilx.byteSizeFormat(it.node_all.disk_use)]}
                 </div>
                 <div class="text-black-50">USABLE<br />CAPACITY</div>
                 <div class="fw-bolder">
-                    {[=valueui.utilx.ByteSizeFormat(it.node_all.disk_max)]}
+                    {[=valueui.utilx.byteSizeFormat(it.node_all.disk_max)]}
                 </div>
             </div>
         </div>
@@ -88,12 +88,12 @@
                     <td>{[=v.addr]}</td>
                     <td>
                         {[? v.caps && v.caps.disk]}
-                        {[=valueui.utilx.ValuePercent(v.caps.disk.use,
+                        {[=valueui.utilx.valuePercent(v.caps.disk.use,
                         v.caps.disk.max)]}% {[?]}
                     </td>
                     <td>
                         {[? v.caps && v.caps.disk]}
-                        {[=valueui.utilx.ValuePercent(v.caps.mem.use,
+                        {[=valueui.utilx.valuePercent(v.caps.mem.use,
                         v.caps.mem.max)]}% {[?]}
                     </td>
                     <td>
@@ -102,7 +102,7 @@
                     </td>
                     <td>{[=v.version]}</td>
                     <td>{[=kvgo.NodeStatus(v.action, {html_tag:true})]}</td>
-                    <td>{[=valueui.utilx.UnixTimeUptime(v.uptime)]}</td>
+                    <td>{[=valueui.utilx.unixTimeUptime(v.uptime)]}</td>
                 </tr>
                 {[~]}
 
@@ -132,7 +132,7 @@
                     <td>{[=v.name]}</td>
                     <td>{[=v.key_num]}</td>
                     <td>{[=v._log_id]}</td>
-                    <td>{[=valueui.utilx.ByteSizeFormat(v.db_size)]}</td>
+                    <td>{[=valueui.utilx.byteSizeFormat(v.db_size)]}</td>
                     <td>{[=v._options.join("<br/>")]}</td>
                 </tr>
                 {[~]}
