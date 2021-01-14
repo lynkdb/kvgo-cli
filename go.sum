@@ -98,6 +98,8 @@ github.com/syndtr/goleveldb v1.0.0 h1:fBdIW9lB4Iz0n9khmH8w27SJ3QEJ7+IgjPEwGSZiFd
 github.com/syndtr/goleveldb v1.0.0/go.mod h1:ZVVdQEZoIme9iO1Ch2Jdy24qqXrMMOU6lpPAyBWyWuQ=
 github.com/valuedig/apis v0.0.0-20210101080009-779fbb961496 h1:p/UaY6sgSj95JIvNsLHO9A/kWc/L4bKSsAY+tAJ/LAE=
 github.com/valuedig/apis v0.0.0-20210101080009-779fbb961496/go.mod h1:x3PVtPUQjbwdSZjf4vzz3RiDbnM1nJUDrP8gJEPko74=
+github.com/valuedig/apis v0.0.0-20210114113748-592a239ae57e h1:du0c0nyrGKwftrIUe5ja0ZGBQCcdjG9/UgsS6NB+KZQ=
+github.com/valuedig/apis v0.0.0-20210114113748-592a239ae57e/go.mod h1:x3PVtPUQjbwdSZjf4vzz3RiDbnM1nJUDrP8gJEPko74=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20190510104115-cbcb75029529/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=
 golang.org/x/exp v0.0.0-20180321215751-8460e604b9de/go.mod h1:CJ0aWSM057203Lf6IL+f9T1iT9GByDxfZKAQTCR3kQA=

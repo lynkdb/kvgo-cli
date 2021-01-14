@@ -24,7 +24,7 @@ require (
 	github.com/rakyll/statik v0.1.7
 	github.com/shirou/gopsutil v3.20.12+incompatible // indirect
 	github.com/syndtr/goleveldb v1.0.0 // indirect
-	github.com/valuedig/apis v0.0.0-20210101080009-779fbb961496
+	github.com/valuedig/apis v0.0.0-20210114113748-592a239ae57e
 	gonum.org/v1/plot v0.8.1
 	google.golang.org/grpc v1.34.0 // indirect
 )
