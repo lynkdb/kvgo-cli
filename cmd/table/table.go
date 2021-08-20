@@ -95,7 +95,7 @@ func TableList() (string, error) {
 			async  = ""
 		)
 
-		for k2, v2 := range item.Status.Options {
+		for k2, v2 := range item.Status.States {
 
 			if k2 == "log_id" {
 				logid = fmt.Sprintf("%d", v2)

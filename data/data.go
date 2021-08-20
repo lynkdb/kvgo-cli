@@ -16,6 +16,7 @@ package data
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/hooto/hflag4g/hflag"
 
@@ -27,6 +28,7 @@ var (
 	Data         kv2.Client
 	DataInstance = ""
 	err          error
+	mu           sync.RWMutex
 	dbSets       = map[string]kv2.Client{}
 )
 
@@ -116,6 +118,8 @@ func Connector(instanceName string) (kv2.ClientConnector, error) {
 			instanceName)
 	}
 
+	mu.Lock()
+	defer mu.Unlock()
 	db := dbSets[instanceName]
 
 	if db == nil || instanceName != DataInstance {

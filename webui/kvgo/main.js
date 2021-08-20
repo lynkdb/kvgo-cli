@@ -219,19 +219,20 @@ kvgo.instanceNodeDataFilter = function (data) {
     data.node_all.status_live = data.nodes.length; // TODO
 
     for (var i in data.tables) {
-        data.tables[i].options = data.tables[i].options || {};
+        data.tables[i].states = data.tables[i].states || {};
         data.tables[i].key_num = data.tables[i].key_num || 0;
         data.tables[i].db_size = data.tables[i].db_size || 0;
         data.tables[i]._log_id = 0;
-        data.tables[i]._options = [];
-        if (data.tables[i].options) {
-            for (var j in data.tables[i].options) {
-                if (j == "log_id") {
-                    data.tables[i]._log_id = data.tables[i].options[j];
-                    continue;
-                }
-                data.tables[i]._options.push(j + ":" + data.tables[i].options[j]);
+        data.tables[i]._states = [];
+        for (var j in data.tables[i].states) {
+            if (j == "log_id") {
+                data.tables[i]._log_id = data.tables[i].states[j];
+                continue;
             }
+            data.tables[i]._states.push({
+                key: j,
+                value: data.tables[i].states[j],
+            });
         }
     }
 
@@ -361,22 +362,6 @@ kvgo.hchartUse = function (cb) {
     });
 };
 
-kvgo.perfMap = {
-    srk: "Read Key",
-    srkr: "Read KeyRange",
-    srlr: "Read LogRange",
-    swk: "Write Key",
-    srb: "Read Bytes",
-    swb: "Write Bytes",
-    //
-    ark: "Read Key",
-    arkr: "Read KeyRange",
-    arlr: "Read LogRange",
-    awk: "Write Key",
-    arb: "Read Bytes",
-    awb: "Write Bytes",
-};
-
 kvgo.hchartConfigTemplate = function (title) {
     return {
         type: "line",
@@ -384,6 +369,7 @@ kvgo.hchartConfigTemplate = function (title) {
             title: title,
             width: "100%",
             height: "200px",
+			radius: 0,
         },
         data: {
             labels: [],
@@ -393,71 +379,166 @@ kvgo.hchartConfigTemplate = function (title) {
 };
 
 kvgo.instanceMetricsDataRender = function (data, update) {
+
+    if (!data.item || !data.item.metrics) {
+        return
+    }
     var mrs = {
-        aq: kvgo.hchartConfigTemplate("API Queries"),
-        ab: kvgo.hchartConfigTemplate("API Bytes"),
-        sq: kvgo.hchartConfigTemplate("Storage Queries"),
-        sb: kvgo.hchartConfigTemplate("Storage Bytes"),
+        service_qps: kvgo.hchartConfigTemplate("Service Queries/10s"),
+        service_siz: kvgo.hchartConfigTemplate("Service Bytes/10s"),
+        service_lat: kvgo.hchartConfigTemplate("Service Latency (μs)"),
+        storage_qps: kvgo.hchartConfigTemplate("Storage Queries/10s"),
+        storage_siz: kvgo.hchartConfigTemplate("Storage Bytes/10s"),
+        storage_lat: kvgo.hchartConfigTemplate("Storage Latency (μs)"),
+        logsync_qps: kvgo.hchartConfigTemplate("LogSync Queries/10s"),
+        logsync_siz: kvgo.hchartConfigTemplate("LogSync Bytes/10s"),
+        logsync_lat: kvgo.hchartConfigTemplate("LogSync Latency (ms)"),
     };
 
-    for (var j in data.item.keys) {
-        var label = valueui.utilx.unixTimeFormat(data.item.keys[j], "i:s");
-        mrs.sq.data.labels.push(label);
-        mrs.sb.data.labels.push(label);
-        mrs.aq.data.labels.push(label);
-        mrs.ab.data.labels.push(label);
+    for (var j in data.item.time_buckets) {
+        var label = valueui.utilx.unixTimeFormat(data.item.time_buckets[j], "i:s");
+		for (var m in mrs) {
+            mrs[m].data.labels.push(label);
+		}
     }
 
-    for (var i in data.item.items) {
-        switch (data.item.items[i].name) {
-            case "ark":
-            case "arkr":
-            case "arlr":
-            case "awk":
-                mrs.aq.data.datasets.push({
-                    label: kvgo.perfMap[data.item.items[i].name],
-                    data: data.item.items[i].values,
-                });
+    for (var i in data.item.metrics) {
+        var m = data.item.metrics[i];
+        if (!m.labels) {
+            m.labels = [];
+        }
+        var mTPL = {
+            label: null,
+            data: [],
+        }
+        for (var k in m.labels) {
+            if (mTPL.label) {
+                mTPL.label += "/";
+            } else {
+                mTPL.label = "";
+            }
+            mTPL.label += m.labels[k].name + "/" + m.labels[k].value;
+        }
+        if (!mTPL.label) {
+            mTPL.label = m.name;
+        }
+
+        switch (m.name) {
+            case "ServiceCall":
+                var mQPS = valueui.utilx.objectClone(mTPL);
+                var mSiz = valueui.utilx.objectClone(mTPL);
+                for (var j in m.points) {
+                    if (m.points[j].count > 0) {
+                        mQPS.data.push(m.points[j].count / 10);
+                    } else {
+                        mQPS.data.push(0);
+                    }
+                    if (m.points[j].sum > 0) {
+                        mSiz.data.push(m.points[j].sum / 10);
+                    } else {
+                        mSiz.data.push(0);
+                    }
+                }
+                mrs.service_qps.data.datasets.push(mQPS);
+                mrs.service_siz.data.datasets.push(mSiz);
                 break;
 
-            case "arb":
-            case "awb":
-                mrs.ab.data.datasets.push({
-                    label: kvgo.perfMap[data.item.items[i].name],
-                    data: data.item.items[i].values,
-                });
+            case "ServiceLatency":
+                var mLat = valueui.utilx.objectClone(mTPL);
+                for (var j in m.points) {
+                    if (m.points[j].count > 0) {
+                        mLat.data.push(m.points[j].sum / m.points[j].count);
+                    } else {
+                        mLat.data.push(0);
+                    }
+                }
+                mrs.service_lat.data.datasets.push(mLat);
                 break;
 
-            case "srk":
-            case "srkr":
-            case "srlr":
-            case "swk":
-                mrs.sq.data.datasets.push({
-                    label: kvgo.perfMap[data.item.items[i].name],
-                    data: data.item.items[i].values,
-                });
+            case "StorageCall":
+                var mQPS = valueui.utilx.objectClone(mTPL);
+                var mSiz = valueui.utilx.objectClone(mTPL);
+                for (var j in m.points) {
+                    if (m.points[j].count > 0) {
+                        mQPS.data.push(m.points[j].count / 10);
+                    } else {
+                        mQPS.data.push(0);
+                    }
+                    if (m.points[j].sum > 0) {
+                        mSiz.data.push(m.points[j].sum / 10);
+                    } else {
+                        mSiz.data.push(0);
+                    }
+                }
+                mrs.storage_qps.data.datasets.push(mQPS);
+                mrs.storage_siz.data.datasets.push(mSiz);
                 break;
 
-            case "srb":
-            case "swb":
-                mrs.sb.data.datasets.push({
-                    label: kvgo.perfMap[data.item.items[i].name],
-                    data: data.item.items[i].values,
-                });
+            case "StorageLatency":
+                var mLat = valueui.utilx.objectClone(mTPL);
+                for (var j in m.points) {
+                    if (m.points[j].count > 0) {
+                        mLat.data.push(m.points[j].sum / m.points[j].count);
+                    } else {
+                        mLat.data.push(0);
+                    }
+                }
+                mrs.storage_lat.data.datasets.push(mLat);
+                break;
+
+            case "LogSyncCall":
+                var mQPS = valueui.utilx.objectClone(mTPL);
+                var mSiz = valueui.utilx.objectClone(mTPL);
+                for (var j in m.points) {
+                    if (m.points[j].count > 0) {
+                        mQPS.data.push(m.points[j].count / 10);
+                    } else {
+                        mQPS.data.push(0);
+                    }
+                    if (m.points[j].sum > 0) {
+                        mSiz.data.push(m.points[j].sum / 10);
+                    } else {
+                        mSiz.data.push(0);
+                    }
+                }
+                mrs.logsync_qps.data.datasets.push(mQPS);
+                mrs.logsync_siz.data.datasets.push(mSiz);
+                break;
+
+            case "LogSyncLatency":
+                var mLat = valueui.utilx.objectClone(mTPL);
+                for (var j in m.points) {
+                    if (m.points[j].count > 0) {
+                        mLat.data.push(m.points[j].sum / m.points[j].count);
+                    } else {
+                        mLat.data.push(0);
+                    }
+                }
+                mrs.logsync_lat.data.datasets.push(mLat);
                 break;
         }
     }
 
     if (update !== true) {
-        hooto_chart.RenderElement(mrs.aq, "kvgo-instance-metrics-api-queries");
-        hooto_chart.RenderElement(mrs.ab, "kvgo-instance-metrics-api-bytes");
-        hooto_chart.RenderElement(mrs.sq, "kvgo-instance-metrics-stor-queries");
-        hooto_chart.RenderElement(mrs.sb, "kvgo-instance-metrics-stor-bytes");
+        hooto_chart.RenderElement(mrs.service_qps, "kvgo-instance-metrics-service-qps");
+        hooto_chart.RenderElement(mrs.service_siz, "kvgo-instance-metrics-service-siz");
+        hooto_chart.RenderElement(mrs.service_lat, "kvgo-instance-metrics-service-lat");
+        hooto_chart.RenderElement(mrs.storage_qps, "kvgo-instance-metrics-storage-qps");
+        hooto_chart.RenderElement(mrs.storage_siz, "kvgo-instance-metrics-storage-siz");
+        hooto_chart.RenderElement(mrs.storage_lat, "kvgo-instance-metrics-storage-lat");
+        hooto_chart.RenderElement(mrs.logsync_qps, "kvgo-instance-metrics-logsync-qps");
+        hooto_chart.RenderElement(mrs.logsync_siz, "kvgo-instance-metrics-logsync-siz");
+        hooto_chart.RenderElement(mrs.logsync_lat, "kvgo-instance-metrics-logsync-lat");
     } else {
-        hooto_chart.RenderUpdate(mrs.aq, "kvgo-instance-metrics-api-queries");
-        hooto_chart.RenderUpdate(mrs.ab, "kvgo-instance-metrics-api-bytes");
-        hooto_chart.RenderUpdate(mrs.sq, "kvgo-instance-metrics-stor-queries");
-        hooto_chart.RenderUpdate(mrs.sb, "kvgo-instance-metrics-stor-bytes");
+        hooto_chart.RenderUpdate(mrs.service_qps, "kvgo-instance-metrics-service-qps");
+        hooto_chart.RenderUpdate(mrs.service_siz, "kvgo-instance-metrics-service-siz");
+        hooto_chart.RenderUpdate(mrs.service_lat, "kvgo-instance-metrics-service-lat");
+        hooto_chart.RenderUpdate(mrs.storage_qps, "kvgo-instance-metrics-storage-qps");
+        hooto_chart.RenderUpdate(mrs.storage_siz, "kvgo-instance-metrics-storage-siz");
+        hooto_chart.RenderUpdate(mrs.storage_lat, "kvgo-instance-metrics-storage-lat");
+        hooto_chart.RenderUpdate(mrs.logsync_qps, "kvgo-instance-metrics-logsync-qps");
+        hooto_chart.RenderUpdate(mrs.logsync_siz, "kvgo-instance-metrics-logsync-siz");
+        hooto_chart.RenderUpdate(mrs.logsync_lat, "kvgo-instance-metrics-logsync-lat");
     }
 };
 
@@ -484,7 +565,7 @@ kvgo.InstanceMetrics = function () {
                 kvgo.instanceMetricsDataRender(data);
 
                 valueui.job.register({
-                    id: "kvgo-instance-metrics-stor-queries",
+                    id: "kvgo-instance-metrics-service-qps",
                     delay: 3000,
                     func: kvgo.instanceMetricsRefresh,
                 });
@@ -508,12 +589,12 @@ kvgo.InstanceMetrics = function () {
 };
 
 kvgo.instanceMetricsRefresh = function (ctx) {
-    var elem = document.getElementById("kvgo-instance-metrics-stor-queries");
+    var elem = document.getElementById("kvgo-instance-metrics-service-qps");
     if (!elem) {
         return ctx.callback("clean");
     }
 
-    var req = "instance_name=" + kvgo.instanceActiveName + "&time_recent=60&time_unit=10";
+    var req = "instance_name=" + kvgo.instanceActiveName + "&last_time_range=30&alignment_period=10";
 
     kvgo.ApiCmd("sys/metrics?" + req, {
         callback: function (err, data) {

@@ -116,14 +116,14 @@
 <div class="card">
     <div class="card-header">Table List</div>
     <div class="card-body">
-        <table class="table valueui-block kvgo-table">
+        <table class="table valueui-block valueui-formtable kvgo-table">
             <thead>
                 <tr>
                     <th>NAME</th>
                     <th>KEYS</th>
                     <th>LOG ID</th>
                     <th>DB SIZE</th>
-                    <th style="width:50%">OPTIONS</th>
+                    <th style="width:50%">STATES</th>
                 </tr>
             </thead>
             <tbody id="">
@@ -133,7 +133,18 @@
                     <td>{[=v.key_num]}</td>
                     <td>{[=v._log_id]}</td>
                     <td>{[=valueui.utilx.byteSizeFormat(v.db_size)]}</td>
-                    <td>{[=v._options.join("<br/>")]}</td>
+                    <td>
+                        {[? v._states && v._states.length > 0]}
+                        <table class="">
+                            {[~v._states :v2]}
+                            <tr>
+                                <td width="30%">{[=v2.key]}</td>
+                                <td>{[=v2.value]}</td>
+                            </tr>
+                            {[~]}
+                        </table>
+                        {[?]}
+                    </td>
                 </tr>
                 {[~]}
             </tbody>

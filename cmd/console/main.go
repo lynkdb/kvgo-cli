@@ -31,6 +31,7 @@ import (
 func Start() {
 
 	httpsrv.GlobalService.Config.UrlBasePath = "/kvgo"
+	httpsrv.GlobalService.Config.CompressResponse = true
 	httpsrv.GlobalService.Config.HttpPort = uint16(config.Config.HttpPort)
 
 	httpsrv.GlobalService.ModuleRegister("/", console.NewModule())

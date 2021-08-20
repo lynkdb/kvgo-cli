@@ -17,7 +17,7 @@ package console
 import (
 	"github.com/hooto/httpsrv"
 	"github.com/lessos/lessgo/types"
-	"github.com/valuedig/apis/go/tsd/v1"
+	tsd2 "github.com/valuedig/apis/go/tsd/v2"
 
 	kv2 "github.com/lynkdb/kvspec/go/kvspec/v2"
 
@@ -86,7 +86,9 @@ func (c Sys) MetricsAction() {
 		rsp = types.WebServiceResult{
 			Kind: "SysMetrics",
 		}
-		instanceName = c.Params.Get("instance_name")
+		instanceName    = c.Params.Get("instance_name")
+		lastTimeRange   = c.Params.Int64("last_time_range")
+		alignmentPeriod = c.Params.Int64("alignment_period")
 	)
 	defer c.RenderJson(&rsp)
 
@@ -101,15 +103,34 @@ func (c Sys) MetricsAction() {
 		return
 	}
 
-	opts := tsd.NewCycleExportOptionsFromHttp(c.Request.Request)
+	req := tsd2.NewSampleQueryRequest()
 
-	rs := db.SysCmd(kv2.NewSysCmdRequest("SysMetrics", opts))
+	req.AlignmentPeriod = alignmentPeriod
+	if req.AlignmentPeriod < 10 {
+		req.AlignmentPeriod = 10
+	}
+
+	req.LastTimeRange = lastTimeRange
+	if req.LastTimeRange < 10 {
+		req.LastTimeRange = 600
+	}
+
+	req.MetricSelect("LogSyncCall").LabelSelect("*")
+	req.MetricSelect("LogSyncLatency").LabelSelect("*")
+
+	req.MetricSelect("ServiceCall").LabelSelect("*")
+	req.MetricSelect("ServiceLatency").LabelSelect("*")
+
+	req.MetricSelect("StorageCall").LabelSelect("*")
+	req.MetricSelect("StorageLatency").LabelSelect("*")
+
+	rs := db.SysCmd(kv2.NewSysCmdRequest("SysMetrics", req))
 	if !rs.OK() {
 		rsp.Kind, rsp.Message = "400.2", rs.Message
 		return
 	}
 
-	var item tsd.CycleFeed
+	var item tsd2.MetricSet
 	if err := rs.DataValue().Decode(&item, nil); err != nil {
 		rsp.Kind, rsp.Message = "400", err.Error()
 		return
