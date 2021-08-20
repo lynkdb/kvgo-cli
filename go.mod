@@ -13,11 +13,11 @@ require (
 	github.com/golang/snappy v0.0.2 // indirect
 	github.com/gosuri/uitable v0.0.4
 	github.com/hooto/hauth v0.0.0-20210108051852-c98e6c9355f9
+	github.com/hooto/hchart v0.0.0-20210820154659-40f12957ba94
 	github.com/hooto/hflag4g v0.0.0-20181023133020-1524604e73ef
 	github.com/hooto/hlog4g v0.0.0-20210204121722-c479dc829592
 	github.com/hooto/htoml4g v0.0.0-20200928123528-226e1ac698c9
 	github.com/hooto/httpsrv v0.0.0-20201207100146-6fa4cdcbc9c9
-	github.com/hooto/httpsrv-bindata v0.0.0-20210108061211-668e87bb46ad // indirect
 	github.com/lessos/lessgo v0.0.0-20201010103753-2e2039a4eb3c
 	github.com/lynkdb/kvgo v0.0.0-20210204134023-b429a83db23d
 	github.com/lynkdb/kvspec v0.0.0-20210204133110-7824ed9d44ef
@@ -25,7 +25,7 @@ require (
 	github.com/rakyll/statik v0.1.7
 	github.com/shirou/gopsutil v3.21.1+incompatible // indirect
 	github.com/syndtr/goleveldb v1.0.0 // indirect
-	github.com/valuedig/apis v0.0.0-20210114113748-592a239ae57e
+	github.com/valuedig/apis v0.0.0-20210820155718-a6378369d199
 	golang.org/x/net v0.0.0-20210119194325-5f4716e94777 // indirect
 	golang.org/x/sys v0.0.0-20210124154548-22da62e12c0c // indirect
 	golang.org/x/text v0.3.5 // indirect
