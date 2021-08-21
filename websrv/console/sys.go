@@ -124,6 +124,8 @@ func (c Sys) MetricsAction() {
 	req.MetricSelect("StorageCall").LabelSelect("*")
 	req.MetricSelect("StorageLatency").LabelSelect("*")
 
+	req.MetricSelect("System").LabelSelect("*")
+
 	rs := db.SysCmd(kv2.NewSysCmdRequest("SysMetrics", req))
 	if !rs.OK() {
 		rsp.Kind, rsp.Message = "400.2", rs.Message

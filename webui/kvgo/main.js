@@ -369,7 +369,7 @@ kvgo.hchartConfigTemplate = function (title) {
             title: title,
             width: "100%",
             height: "200px",
-			radius: 0,
+            radius: 0,
         },
         data: {
             labels: [],
@@ -393,13 +393,16 @@ kvgo.instanceMetricsDataRender = function (data, update) {
         logsync_qps: kvgo.hchartConfigTemplate("LogSync Queries/10s"),
         logsync_siz: kvgo.hchartConfigTemplate("LogSync Bytes/10s"),
         logsync_lat: kvgo.hchartConfigTemplate("LogSync Latency (ms)"),
+        system_cpu: kvgo.hchartConfigTemplate("CPU load (%)"),
+        system_mem: kvgo.hchartConfigTemplate("Memory Usage (MiB)"),
+        system_io: kvgo.hchartConfigTemplate("IO Status (MiB)"),
     };
 
     for (var j in data.item.time_buckets) {
         var label = valueui.utilx.unixTimeFormat(data.item.time_buckets[j], "i:s");
-		for (var m in mrs) {
+        for (var m in mrs) {
             mrs[m].data.labels.push(label);
-		}
+        }
     }
 
     for (var i in data.item.metrics) {
@@ -516,29 +519,59 @@ kvgo.instanceMetricsDataRender = function (data, update) {
                 }
                 mrs.logsync_lat.data.datasets.push(mLat);
                 break;
+
+            case "System":
+                var mSys = valueui.utilx.objectClone(mTPL);
+                switch (mTPL.label) {
+                    case "CPU/Percent":
+                        for (var j in m.points) {
+                            if (m.points[j].count > 0) {
+                                mSys.data.push(m.points[j].sum / m.points[j].count);
+                            } else {
+                                mSys.data.push(0);
+                            }
+                        }
+                        mrs.system_cpu.data.datasets.push(mSys);
+                        break;
+                    case "Memory/Used":
+                    case "Memory/Cached":
+                        for (var j in m.points) {
+                            if (m.points[j].count > 0) {
+                                mSys.data.push((m.points[j].sum / m.points[j].count) / (1024 * 1024));
+                            } else {
+                                mSys.data.push(0);
+                            }
+                        }
+                        mrs.system_mem.data.datasets.push(mSys);
+                        break;
+                    case "Net/Recv":
+                    case "Net/Sent":
+                    case "Disk/Read":
+                    case "Disk/Write":
+                        for (var j in m.points) {
+                            if (j == 0) {
+                                continue;
+                            }
+                            var s = m.points[j].sum - m.points[j - 1].sum;
+                            if (s > 0) {
+                                mSys.data.push(s / (1024 * 1024));
+                            } else {
+                                mSys.data.push(0);
+                            }
+                        }
+                        mrs.system_io.data.datasets.push(mSys);
+                        break;
+                }
+                break;
         }
     }
 
-    if (update !== true) {
-        hooto_chart.RenderElement(mrs.service_qps, "kvgo-instance-metrics-service-qps");
-        hooto_chart.RenderElement(mrs.service_siz, "kvgo-instance-metrics-service-siz");
-        hooto_chart.RenderElement(mrs.service_lat, "kvgo-instance-metrics-service-lat");
-        hooto_chart.RenderElement(mrs.storage_qps, "kvgo-instance-metrics-storage-qps");
-        hooto_chart.RenderElement(mrs.storage_siz, "kvgo-instance-metrics-storage-siz");
-        hooto_chart.RenderElement(mrs.storage_lat, "kvgo-instance-metrics-storage-lat");
-        hooto_chart.RenderElement(mrs.logsync_qps, "kvgo-instance-metrics-logsync-qps");
-        hooto_chart.RenderElement(mrs.logsync_siz, "kvgo-instance-metrics-logsync-siz");
-        hooto_chart.RenderElement(mrs.logsync_lat, "kvgo-instance-metrics-logsync-lat");
-    } else {
-        hooto_chart.RenderUpdate(mrs.service_qps, "kvgo-instance-metrics-service-qps");
-        hooto_chart.RenderUpdate(mrs.service_siz, "kvgo-instance-metrics-service-siz");
-        hooto_chart.RenderUpdate(mrs.service_lat, "kvgo-instance-metrics-service-lat");
-        hooto_chart.RenderUpdate(mrs.storage_qps, "kvgo-instance-metrics-storage-qps");
-        hooto_chart.RenderUpdate(mrs.storage_siz, "kvgo-instance-metrics-storage-siz");
-        hooto_chart.RenderUpdate(mrs.storage_lat, "kvgo-instance-metrics-storage-lat");
-        hooto_chart.RenderUpdate(mrs.logsync_qps, "kvgo-instance-metrics-logsync-qps");
-        hooto_chart.RenderUpdate(mrs.logsync_siz, "kvgo-instance-metrics-logsync-siz");
-        hooto_chart.RenderUpdate(mrs.logsync_lat, "kvgo-instance-metrics-logsync-lat");
+    for (var name in mrs) {
+        if (update === true) {
+            hooto_chart.RenderUpdate(mrs[name], "kvgo_instance_metric_" + name);
+        } else {
+            hooto_chart.RenderElement(mrs[name], "kvgo_instance_metric_" + name);
+        }
     }
 };
 
@@ -565,7 +598,7 @@ kvgo.InstanceMetrics = function () {
                 kvgo.instanceMetricsDataRender(data);
 
                 valueui.job.register({
-                    id: "kvgo-instance-metrics-service-qps",
+                    id: "kvgo_instance_metric_service-qps",
                     delay: 3000,
                     func: kvgo.instanceMetricsRefresh,
                 });
@@ -589,12 +622,12 @@ kvgo.InstanceMetrics = function () {
 };
 
 kvgo.instanceMetricsRefresh = function (ctx) {
-    var elem = document.getElementById("kvgo-instance-metrics-service-qps");
+    var elem = document.getElementById("kvgo_instance_metric_service_qps");
     if (!elem) {
         return ctx.callback("clean");
     }
 
-    var req = "instance_name=" + kvgo.instanceActiveName + "&last_time_range=30&alignment_period=10";
+    var req = "instance_name=" + kvgo.instanceActiveName + "&last_time_range=40&alignment_period=10";
 
     kvgo.ApiCmd("sys/metrics?" + req, {
         callback: function (err, data) {
