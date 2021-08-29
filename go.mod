@@ -16,15 +16,15 @@ require (
 	github.com/hooto/htoml4g v0.0.0-20200928123528-226e1ac698c9
 	github.com/hooto/httpsrv v0.0.0-20210820160451-a548e214d86d
 	github.com/lessos/lessgo v0.0.0-20201010103753-2e2039a4eb3c
-	github.com/lynkdb/kvgo v1.1.1
-	github.com/lynkdb/kvspec v1.0.2
+	github.com/lynkdb/kvgo v1.1.2
+	github.com/lynkdb/kvspec v1.0.3
 	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/rakyll/statik v0.1.7
 	github.com/shirou/gopsutil/v3 v3.21.7 // indirect
 	github.com/syndtr/goleveldb v1.0.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.8 // indirect
 	github.com/tklauser/numcpus v0.3.0 // indirect
-	github.com/valuedig/apis v0.0.0-20210820155718-a6378369d199
+	github.com/valuedig/apis v0.0.0-20210829154018-40efea9f58ff
 	golang.org/x/net v0.0.0-20210813160813-60bc85c4be6d // indirect
 	golang.org/x/sys v0.0.0-20210820121016-41cdb8703e55 // indirect
 	golang.org/x/text v0.3.7 // indirect

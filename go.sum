@@ -98,10 +98,10 @@ github.com/jung-kurt/gofpdf v1.16.2 h1:jgbatWHfRlPYiK85qgevsZTHviWXKwB1TTiKdz5Pt
 github.com/jung-kurt/gofpdf v1.16.2/go.mod h1:1hl7y57EsiPAkLbOwzpzqgx1A30nQCk/YmFV8S2vmK0=
 github.com/lessos/lessgo v0.0.0-20201010103753-2e2039a4eb3c h1:nFdeKtslXRvwsPwHVuU+ngj/0in9lnYW/rB+7kf6yIg=
 github.com/lessos/lessgo v0.0.0-20201010103753-2e2039a4eb3c/go.mod h1:K92WHfKfTlAnvbgFu/93zWwL24pviI+XDo46W72gn6I=
-github.com/lynkdb/kvgo v1.1.1 h1:LyCLZ8G2AMVoWufC/BGObokTf5Xfsxmahf3qux+fiuQ=
-github.com/lynkdb/kvgo v1.1.1/go.mod h1:s6lmYRESBZlpXdgY2y/uMtXkJ3VoWXzes7YC/D2ixLY=
-github.com/lynkdb/kvspec v1.0.2 h1:VyjnzbVi+75J78uZyr4nLYkF4zaSzTacAxo757sb5DU=
-github.com/lynkdb/kvspec v1.0.2/go.mod h1:Bl0QWwijqs3dNxfWK3l+jojrNMxV0V76NBqjw/ldtPo=
+github.com/lynkdb/kvgo v1.1.2 h1:CgUMjPIRscVxSr9gxnIdILwT9IcKPMB4RV45BRCiWho=
+github.com/lynkdb/kvgo v1.1.2/go.mod h1:s6lmYRESBZlpXdgY2y/uMtXkJ3VoWXzes7YC/D2ixLY=
+github.com/lynkdb/kvspec v1.0.3 h1:+WY2rwOjIr83WJgomtgZi1PaVwmwx9Fzog5oZZLgm6g=
+github.com/lynkdb/kvspec v1.0.3/go.mod h1:Bl0QWwijqs3dNxfWK3l+jojrNMxV0V76NBqjw/ldtPo=
 github.com/mattn/go-colorable v0.1.8 h1:c1ghPdyEDarC70ftn0y+A/Ee++9zz8ljHG1b13eJ0s8=
 github.com/mattn/go-colorable v0.1.8/go.mod h1:u6P/XSegPjTcexA+o6vUJrdnUu04hMope9wVRipJSqc=
 github.com/mattn/go-isatty v0.0.12 h1:wuysRhFDzyxgEmMf5xjvJ2M9dZoWAXNNr5LSBS7uHXY=
@@ -138,8 +138,8 @@ github.com/tklauser/go-sysconf v0.3.8/go.mod h1:z4zYWRS+X53WUKtBcmDg1comV3fPhdQn
 github.com/tklauser/numcpus v0.2.3/go.mod h1:vpEPS/JC+oZGGQ/My/vJnNsvMDQL6PwOqt8dsCw5j+E=
 github.com/tklauser/numcpus v0.3.0 h1:ILuRUQBtssgnxw0XXIjKUC56fgnOrFoQQ/4+DeU2biQ=
 github.com/tklauser/numcpus v0.3.0/go.mod h1:yFGUr7TUHQRAhyqBcEg0Ge34zDBAsIvJJcyE6boqnA8=
-github.com/valuedig/apis v0.0.0-20210820155718-a6378369d199 h1:LO/xom9zub5s575ubeyYBK9YwGKSWGjVyFTO3nqQjDo=
-github.com/valuedig/apis v0.0.0-20210820155718-a6378369d199/go.mod h1:x3PVtPUQjbwdSZjf4vzz3RiDbnM1nJUDrP8gJEPko74=
+github.com/valuedig/apis v0.0.0-20210829154018-40efea9f58ff h1:r+TkNwcWwsvaHiBFDUPCrgU7jpFmqSxhWhRCkoGzfYg=
+github.com/valuedig/apis v0.0.0-20210829154018-40efea9f58ff/go.mod h1:x3PVtPUQjbwdSZjf4vzz3RiDbnM1nJUDrP8gJEPko74=
 github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 go.opentelemetry.io/proto/otlp v0.7.0/go.mod h1:PqfVotwruBrMGOCsRd/89rSnXhoiJIqeYNgFYFoEGnI=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=

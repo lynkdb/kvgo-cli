@@ -116,9 +116,8 @@ kvgo.instanceEntryDefault = function (name) {
 };
 
 kvgo.InstanceEntry = function (name) {
-    console.log(name);
-    name = kvgo.instanceEntryDefault(name);
 
+    name = kvgo.instanceEntryDefault(name);
     if (!name) {
         return valueui.alert.open("error", "No Instance Setup");
     }
@@ -369,7 +368,7 @@ kvgo.hchartConfigTemplate = function (title) {
             title: title,
             width: "100%",
             height: "200px",
-            radius: 0,
+            radius: 1,
         },
         data: {
             labels: [],
@@ -378,15 +377,16 @@ kvgo.hchartConfigTemplate = function (title) {
     };
 };
 
-kvgo.instanceMetricsDataRender = function (data, update) {
+kvgo.instanceMetricsDataRender = function (data, update, cb) {
 
     if (!data.item || !data.item.metrics) {
         return
     }
+
     var mrs = {
-        service_qps: kvgo.hchartConfigTemplate("Service Queries/10s"),
-        service_siz: kvgo.hchartConfigTemplate("Service Bytes/10s"),
-        service_lat: kvgo.hchartConfigTemplate("Service Latency (μs)"),
+        service_qps: kvgo.hchartConfigTemplate("Service API Queries/10s"),
+        service_siz: kvgo.hchartConfigTemplate("Service API Bytes/10s"),
+        service_lat: kvgo.hchartConfigTemplate("Service API Latency (μs)"),
         storage_qps: kvgo.hchartConfigTemplate("Storage Queries/10s"),
         storage_siz: kvgo.hchartConfigTemplate("Storage Bytes/10s"),
         storage_lat: kvgo.hchartConfigTemplate("Storage Latency (μs)"),
@@ -395,14 +395,25 @@ kvgo.instanceMetricsDataRender = function (data, update) {
         logsync_lat: kvgo.hchartConfigTemplate("LogSync Latency (ms)"),
         system_cpu: kvgo.hchartConfigTemplate("CPU load (%)"),
         system_mem: kvgo.hchartConfigTemplate("Memory Usage (MiB)"),
-        system_io: kvgo.hchartConfigTemplate("IO Status (MiB)"),
+        system_io: kvgo.hchartConfigTemplate("IO Status (MiB/10s)"),
     };
 
+    var time_fmt = "i:s";
+    if (kvgo.instanceMetricConfig.last_time_range >= 86400) {
+        time_fmt = "m-d H:i";
+    } else if (kvgo.instanceMetricConfig.last_time_range >= 3600) {
+        time_fmt = "H:i";
+    }
+
     for (var j in data.item.time_buckets) {
-        var label = valueui.utilx.unixTimeFormat(data.item.time_buckets[j], "i:s");
+        var label = valueui.utilx.unixTimeFormat(data.item.time_buckets[j], time_fmt);
         for (var m in mrs) {
             mrs[m].data.labels.push(label);
         }
+    }
+
+    if (typeof cb !== "function") {
+        cb = function () { };
     }
 
     for (var i in data.item.metrics) {
@@ -425,8 +436,17 @@ kvgo.instanceMetricsDataRender = function (data, update) {
         if (!mTPL.label) {
             mTPL.label = m.name;
         }
+        for (var j in m.points) {
+            if (!m.points[j].count) {
+                m.points[j].count = 0;
+            }
+            if (!m.points[j].sum) {
+                m.points[j].sum = 0;
+            }
+        }
 
         switch (m.name) {
+
             case "ServiceCall":
                 var mQPS = valueui.utilx.objectClone(mTPL);
                 var mSiz = valueui.utilx.objectClone(mTPL);
@@ -559,6 +579,9 @@ kvgo.instanceMetricsDataRender = function (data, update) {
                                 mSys.data.push(0);
                             }
                         }
+                        if (mrs.system_io.data.labels.length > mSys.data.length) {
+                            mrs.system_io.data.labels = mrs.system_io.data.labels.slice(1);
+                        }
                         mrs.system_io.data.datasets.push(mSys);
                         break;
                 }
@@ -573,12 +596,26 @@ kvgo.instanceMetricsDataRender = function (data, update) {
             hooto_chart.RenderElement(mrs[name], "kvgo_instance_metric_" + name);
         }
     }
+
+    cb();
 };
+
+kvgo.instanceMetricConfig = {
+    alignment_period: 10,
+    last_time_range: 600,
+}
 
 kvgo.InstanceMetrics = function () {
     var name = kvgo.instanceActiveName;
 
-    var req = "instance_name=" + name + "&time_recent=600&time_unit=10";
+    var req = "instance_name=" + name +
+        "&last_time_range=" + kvgo.instanceMetricConfig.last_time_range +
+        "&alignment_period=" + kvgo.instanceMetricConfig.alignment_period;
+
+    kvgo.instanceMetricConfig.alignment_period = 10;
+    kvgo.instanceMetricConfig.last_time_range = 600;
+
+    kvgo.instanceMetricConfig.alignment_period_setup = 10;
 
     var ep = valueui.newEventProxy("data", "tpl", "cerr", function (data, tpl, cerr) {
         if (cerr) {
@@ -599,9 +636,12 @@ kvgo.InstanceMetrics = function () {
 
                 valueui.job.register({
                     id: "kvgo_instance_metric_service-qps",
-                    delay: 3000,
+                    delay: 5000,
                     func: kvgo.instanceMetricsRefresh,
                 });
+
+                valueui.layout.moduleNavbarOpToolRefresh(
+                    "#kvgo-instance-metric-time-ranges-tpl", null);
             },
         });
     });
@@ -621,13 +661,46 @@ kvgo.InstanceMetrics = function () {
     });
 };
 
+kvgo.InstanceMetricTimeRangeButton = function (obj, alignment_period, last_time_range) {
+
+    if (!obj || !alignment_period || !last_time_range) {
+        return;
+    }
+
+    if (alignment_period < 10) {
+        alignment_period = 10;
+    } else if (alignment_period > 3600) {
+        alignment_period = 3600;
+    }
+    kvgo.instanceMetricConfig.alignment_period = alignment_period;
+
+    if (last_time_range < 600) {
+        last_time_range = 600;
+    } else if (last_time_range > 86400) {
+        last_time_range = 86400;
+    }
+    kvgo.instanceMetricConfig.last_time_range = last_time_range;
+
+    $("#valueui-layout-module-navbar-optools").find(".hover").removeClass("hover");
+    obj.setAttribute("class", "hover");
+}
+
 kvgo.instanceMetricsRefresh = function (ctx) {
+
     var elem = document.getElementById("kvgo_instance_metric_service_qps");
     if (!elem) {
         return ctx.callback("clean");
     }
 
-    var req = "instance_name=" + kvgo.instanceActiveName + "&last_time_range=40&alignment_period=10";
+    var reload = false;
+    var req = "instance_name=" + kvgo.instanceActiveName +
+        "&alignment_period=" + kvgo.instanceMetricConfig.alignment_period;
+
+    if (kvgo.instanceMetricConfig.alignment_period != kvgo.instanceMetricConfig.alignment_period_setup) {
+        req += "&last_time_range=" + kvgo.instanceMetricConfig.last_time_range;
+    } else {
+        req += "&last_time_range=" + (kvgo.instanceMetricConfig.alignment_period * 4);
+    }
 
     kvgo.ApiCmd("sys/metrics?" + req, {
         callback: function (err, data) {
@@ -640,8 +713,19 @@ kvgo.instanceMetricsRefresh = function (ctx) {
             if (msg) {
                 return;
             }
+            if (!data.item.status) {
+                data.item.status = {};
+            }
+            if (data.item.status.alignment_period != kvgo.instanceMetricConfig.alignment_period) {
+                return;
+            }
 
-            kvgo.instanceMetricsDataRender(data, true);
+            if (kvgo.instanceMetricConfig.alignment_period != kvgo.instanceMetricConfig.alignment_period_setup) {
+                kvgo.instanceMetricConfig.alignment_period_setup = kvgo.instanceMetricConfig.alignment_period;
+                kvgo.instanceMetricsDataRender(data, false);
+            } else {
+                kvgo.instanceMetricsDataRender(data, true);
+            }
         },
     });
 };
